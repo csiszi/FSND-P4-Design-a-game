@@ -12,7 +12,7 @@ class User(ndb.Model):
     """User profile"""
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
-    last_push = ndb.DateProperty(required=True, default=datetime.now())
+    last_push = ndb.DateProperty(default=datetime.now())
 
     @classmethod
     def update_last_push(self):
@@ -96,8 +96,8 @@ class Score(ndb.Model):
     attempts = ndb.IntegerProperty(required=True)
 
     def to_form(self):
-        return ScoreForm(user_name=self.user.get().name, date=str(self.date),
-                         attempts=self.attempts)
+        return ScoreForm(user_name=self.key.parent().get().name,
+                         date=str(self.date), attempts=self.attempts)
 
 
 class GameForm(messages.Message):
