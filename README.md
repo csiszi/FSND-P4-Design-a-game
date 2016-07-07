@@ -132,7 +132,7 @@ Will you push your luck in your greatest game or will you create a new game?
  - **GameForm**
     - Representation of a Game's state (urlsafe_key, attempts_remaining,
     game_over flag, message, user_name).
-- **GameForms**
+ - **GameForms**
     - Multiple GameForm container.
  - **ScoreForm**
     - Representation of a completed game's Score (user_name, date, won flag,
