@@ -81,7 +81,7 @@ Will you push your luck in your greatest game or will you create a new game?
     - Returns: ScoreForms.
     - Description: Returns current scores of users ordered by attempts.
 
- - **get_user_scores**
+- **get_user_scores**
     - Path: 'scores/user/{user_name}'
     - Method: GET
     - Parameters: user_name
@@ -89,21 +89,21 @@ Will you push your luck in your greatest game or will you create a new game?
     - Description: Returns all Scores recorded by the provided player (unordered).
     Will raise a NotFoundException if the User does not exist.
 
- - **get_user_games**
+- **get_user_games**
     - Path: 'games/user/{user_name}'
     - Method: GET
     - Parameters: user_name
     - Returns: GameForms
     - Description: Returns every games of a user.
 
- - **cancel_game**
+- **cancel_game**
     - Path: 'games/cancel/{urlsafe_game_key}'
     - Method: GET
     - Parameters: urlsafe_game_key
     - Returns: StringMessage
     - Description: Cancel (delete) a game.
 
- - **get_game_history**
+- **get_game_history**
     - Path: 'game/history/{urlsafe_game_key}'
     - Method: GET
     - Parameters: urlsafe_game_key
