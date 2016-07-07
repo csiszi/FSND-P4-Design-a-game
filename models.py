@@ -1,6 +1,4 @@
-"""models.py - This file contains the class definitions for the Datastore
-entities used by the Game. Because these classes are also regular Python
-classes they can include methods (such as 'to_form' and 'new_game')."""
+"""models.py - Class definitions with methods to separate concerns"""
 
 import random
 from datetime import datetime, timedelta
