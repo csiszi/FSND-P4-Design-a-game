@@ -10,13 +10,17 @@
 
 
 
-##Game Description:
+##Game Description & rules:
 Push your luck is a game for the brave ones. You can have multiple open games,
-but your score reflects to the last one where you pushed your luck.
-If you lost, your score will be 0 and you cannot push your luck on that game
-anymore. If you win, the game's attempts increases by one and your score will
-be the number of attempts in that game.
-Will you push your luck in your greatest game or will you create a new game?
+but your score equals to your **last score** (and not your highest score!).
+If you lost in your last game, your score will be 0 and you cannot push your
+luck on that game anymore. If you win, the game's attempts increases by one and
+your score will be the number of attempts in that game.
+The high score returns the most attempts of the ended games, but the
+point is to be the first in the rankings, which shows your **last** score
+(and not your highest score!)
+If you push your luck on a game where you have 5 points, you can find yourself
+in the bottom of the list. But if you win, maybe you'll stay there forever!
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.

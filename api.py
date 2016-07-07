@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-`
-"""api.py - Create and configure the Game API exposing the resources.
-This can also contain game logic. For more complex games it would be wise to
-move game logic to another file. Ideally the API will be simple, concerned
-primarily with communication to/from the API's users."""
+"""api.py - Contains primarily with communication to/from the API's users."""
 
 
 import logging
 import endpoints
 import random
 from protorpc import remote, messages
-from datetime import date
+from datetime import datetime
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 
 from models import User, Game, Score
-from models import StringMessage, NewGameForm, GameForm, GameForms, ScoreForm, ScoreForms, HistoryForms
+from models import (StringMessage, GameForm, GameForms,
+                    ScoreForm, ScoreForms, HistoryForms)
 from utils import get_by_urlsafe
 
 GET_GAME_REQUEST = endpoints.ResourceContainer(
-        urlsafe_game_key=messages.StringField(1),)
-PUSH_LUCK_REQUEST = endpoints.ResourceContainer(
         urlsafe_game_key=messages.StringField(1),)
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
@@ -27,6 +23,7 @@ HIGH_SCORES_REQUEST = endpoints.ResourceContainer(
         number_of_results=messages.IntegerField(1))
 
 MEMCACHE_AVG_SCORE = 'AVG_SCORE'
+
 
 @endpoints.api(name='push_your_luck', version='v1')
 class PushYourLuckApi(remote.Service):
@@ -43,7 +40,7 @@ class PushYourLuckApi(remote.Service):
                     'A User with that name already exists!')
         user = User(name=request.user_name, email=request.email)
         user.put()
-        score = Score(user=user.key, date=date.today(), attempts=0)
+        score = Score(parent=user.key, date=datetime.now(), attempts=0)
         score.put()
         return StringMessage(message='User {} created!'.format(
                 request.user_name))
@@ -81,7 +78,7 @@ class PushYourLuckApi(remote.Service):
         else:
             raise endpoints.NotFoundException('Game not found!')
 
-    @endpoints.method(request_message=PUSH_LUCK_REQUEST,
+    @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
                       path='game/push_luck/{urlsafe_game_key}',
                       name='push_luck',
@@ -90,24 +87,13 @@ class PushYourLuckApi(remote.Service):
         """Push the luck. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
-            return game.to_form('Game already over!')
-
-        game.update_history()
-        roll = random.choice([True, False])
-
-        if roll == True:
-            game.end_game()
-            return game.to_form('Sorry, that was it.')
+            raise endpoints.ForbiddenException(
+                'Illegal action: Game is already over.')
+        if game.key.parent().get().can_push():
+            return game.push_luck()
         else:
-            game.attempts += 1
-            # increase score for user
-            logging.info(game.user)
-            score = Score.query(Score.user==game.user).get()
-            score.attempts=game.attempts
-            score.put()
-            game.put()
-            return game.to_form(random.choice(['Wow, nice!', 'Lucky bastard!',
-                                                'You should play for real']))
+            raise endpoints.ForbiddenException(
+                'You cannot push your luck yet.')
 
     @endpoints.method(response_message=ScoreForms,
                       path='scores',
@@ -153,7 +139,7 @@ class PushYourLuckApi(remote.Service):
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
-        score = Score.query(Score.user == user.key).get()
+        score = Score.query(ancestor=user.key).get()
         return score.to_form()
 
     @endpoints.method(request_message=USER_REQUEST,
@@ -167,17 +153,19 @@ class PushYourLuckApi(remote.Service):
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
-        games = Game.query(Game.user == user.key)
+        games = Game.query(Game.game_over == False, ancestor=user.key)
         return GameForms(items=[game.to_form('') for game in games])
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=StringMessage,
                       path='game/cancel/{urlsafe_game_key}',
                       name='cancel_game',
-                      http_method='PUT')
+                      http_method='DELETE')
     def cancel_game(self, request):
         """Cancel a game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if game.game_over:
+            raise endpoints.ForbiddenException('Game already ended')
         if game:
             game.cancel_game()
             return StringMessage(message='No idea why you would do this...')
@@ -193,11 +181,11 @@ class PushYourLuckApi(remote.Service):
         """Return a game's history"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
-            return HistoryForms(items=[StringMessage(message=history.strftime("%B %d, %Y")) for history
-                                       in game.history])
+            return HistoryForms(items=[
+                StringMessage(message=history.strftime("%B %d, %Y"))
+                for history in game.history])
         else:
             raise endpoints.NotFoundException('Game not found!')
-
 
     @endpoints.method(response_message=StringMessage,
                       path='games/average_attempts',

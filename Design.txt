@@ -1,23 +1,13 @@
-This is a fairly simple game: Push your luck!
-The rules:
-- A user can have any open games as he wants
-- But his actual score equals to his last score
-- He can push his luck on a game. If he wins, the attemps is increased by 1
-  which will be his new score.
-  If he looses, his score become 0 and that game ends.
-- Will you push your luck in your best game or start a new one?
-
 I kept the design easy as the goal was to experiment with App Engine.
-New addition to the model is the history in the Game class. Since there
-are no arguments, the history contains only the date when the user pushed
-his score.
-
-I've added new methods to the Game class as well:
-- cancel game
-- update history
-So when if I decide to change the history (for example record the number of
-open games when he pushed his luck on that game) I'll have to change only
-that method.
+New additions to model:
+- Game.history to store the dates of pushes
+- New methods to separate concerns:
+  - User.update_last_push() to set the last date of push
+  - User.can_push() returns if the user can push or not (limited to 1 min,
+  can be increased in production)
+  - Game.update_history() adds an entry to the history
+  - Game.push_luck() pushes luck
+  - Game.cancel_game cancels game
 
 Right now there's no point in cancelling the game, but maybe it will change
 if the rules change.
