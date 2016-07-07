@@ -102,7 +102,7 @@ in the bottom of the list. But if you win, maybe you'll stay there forever!
 
 - **cancel_game**
     - Path: 'games/cancel/{urlsafe_game_key}'
-    - Method: GET
+    - Method: DELETE
     - Parameters: urlsafe_game_key
     - Returns: StringMessage
     - Description: Cancel (delete) a game.
