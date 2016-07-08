@@ -1,5 +1,6 @@
 """models.py - Class definitions with methods to separate concerns"""
 
+# import logging
 import random
 from datetime import datetime, timedelta
 from protorpc import messages
@@ -10,9 +11,8 @@ class User(ndb.Model):
     """User profile"""
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
-    last_push = ndb.DateProperty(default=datetime.now())
+    last_push = ndb.DateTimeProperty(default=datetime.now())
 
-    @classmethod
     def update_last_push(self):
         """Updates last_push property"""
         self.last_push = datetime.now()
@@ -27,7 +27,7 @@ class Game(ndb.Model):
     """Game object"""
     attempts = ndb.IntegerProperty(required=True, default=0)
     game_over = ndb.BooleanProperty(required=True, default=False)
-    history = ndb.DateProperty(repeated=True)  # when he pushed his luck
+    history = ndb.DateTimeProperty(repeated=True)  # when he pushed his luck
 
     @classmethod
     def new_game(cls, user):
@@ -71,6 +71,7 @@ class Game(ndb.Model):
 
     def push_luck(self):
         """Pushes luck"""
+        self.key.parent().get().update_last_push()
         self.update_history()
         roll = random.choice([True, False])
 
