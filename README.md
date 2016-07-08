@@ -19,6 +19,7 @@ your score will be the number of attempts in that game.
 The high score returns the most attempts of the ended games, but the
 **point is to be the first in the rankings**, which shows your **last** score
 (and not your highest score!)
+
 *Note*: If the ranking would return the highest score of a user (instead of the
 last score), then the only strategy would be to push your luck whenever you can.
 If you push your luck on a game where you have 5 points, you can find yourself
