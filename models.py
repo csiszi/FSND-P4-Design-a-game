@@ -13,6 +13,15 @@ class User(ndb.Model):
     email = ndb.StringProperty()
     last_push = ndb.DateTimeProperty(default=datetime.now())
 
+    @classmethod
+    def new_user(cls, user_name, email):
+        """Creates a new user"""
+        user = User(name=user_name, email=email)
+        user.put()
+        score = Score(parent=user.key, date=datetime.now(), attempts=0)
+        score.put()
+        return 'User {} created!'.format(user_name)
+
     def update_last_push(self):
         """Updates last_push property"""
         self.last_push = datetime.now()

@@ -1,7 +1,9 @@
 I kept the design easy as the goal was to experiment with App Engine.
 New additions to model:
 - Game.history to store the dates of pushes
-- New methods to separate concerns:
+- I've moved out every DB logic to methods, the api.py only contains
+  the communication with the API consumers.
+  - User.new_user() is a classmethod that creates a user and his/her score.
   - User.update_last_push() to set the last date of push
   - User.can_push() returns if the user can push or not (limited to 1 min,
   can be increased in production)

@@ -17,10 +17,14 @@ If you lost in your last game, your score will be 0 and you cannot push your
 luck on that game anymore. If you win, the game's attempts increases by one and
 your score will be the number of attempts in that game.
 The high score returns the most attempts of the ended games, but the
-point is to be the first in the rankings, which shows your **last** score
+**point is to be the first in the rankings**, which shows your **last** score
 (and not your highest score!)
+*Note*: If the ranking would return the highest score of a user (instead of the
+last score), then the only strategy would be to push your luck whenever you can.
 If you push your luck on a game where you have 5 points, you can find yourself
-in the bottom of the list. But if you win, maybe you'll stay there forever!
+in the bottom of the list, without any games in your pocket. If you start a new,
+you can see the bottom of the ranking as well, but you can be in the top again
+with only one lucky push!
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.

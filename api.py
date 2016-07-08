@@ -2,9 +2,7 @@
 """api.py - Contains primarily with communication to/from the API's users."""
 
 
-import logging
 import endpoints
-import random
 from protorpc import remote, messages
 from datetime import datetime
 from google.appengine.api import memcache
@@ -38,12 +36,9 @@ class PushYourLuckApi(remote.Service):
         if User.query(User.name == request.user_name).get():
             raise endpoints.ConflictException(
                     'A User with that name already exists!')
-        user = User(name=request.user_name, email=request.email)
-        user.put()
-        score = Score(parent=user.key, date=datetime.now(), attempts=0)
-        score.put()
-        return StringMessage(message='User {} created!'.format(
-                request.user_name))
+        message = User.new_user(user_name=request.user_name,
+                                email=request.email)
+        return StringMessage(message=message)
 
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=GameForm,
@@ -86,6 +81,10 @@ class PushYourLuckApi(remote.Service):
     def push_luck(self, request):
         """Push the luck. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        print('PUSHLUCK')
+        print(game)
+        if not game:
+            raise endpoints.NotFoundException('Game not found')
         if game.game_over:
             raise endpoints.ForbiddenException(
                 'Illegal action: Game is already over.')
@@ -164,13 +163,12 @@ class PushYourLuckApi(remote.Service):
     def cancel_game(self, request):
         """Cancel a game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
         if game.game_over:
             raise endpoints.ForbiddenException('Game already ended')
-        if game:
-            game.cancel_game()
-            return StringMessage(message='No idea why you would do this...')
-        else:
-            raise endpoints.NotFoundException('Game not found!')
+        game.cancel_game()
+        return StringMessage(message='No idea why you would do this...')
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=HistoryForms,
@@ -180,6 +178,8 @@ class PushYourLuckApi(remote.Service):
     def get_game_history(self, request):
         """Return a game's history"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
         if game:
             return HistoryForms(items=[
                 StringMessage(message=history.strftime("%B %d, %Y"))
